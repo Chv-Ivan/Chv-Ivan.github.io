@@ -1,0 +1,127 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Крипто Визитка</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+  <!-- Header -->
+  <header class="bg-blue-900 py-6">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl font-bold">Крипто Визитка</h1>
+      <p class="mt-2 text-lg">Ваш гид в мир криптовалют</p>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-12">
+    <div class="container mx-auto px-4 text-center">
+      <img src="https://via.placeholder.com/600x300?text=Bitcoin" alt="Bitcoin" class="mx-auto rounded-lg shadow-lg">
+      <h2 class="text-3xl font-semibold mt-6">Добро пожаловать в мир криптовалют!</h2>
+      <p class="mt-4 text-lg max-w-2xl mx-auto">
+        Криптовалюты — это будущее финансов. Узнайте, как инвестировать, торговать и безопасно хранить цифровые активы.
+      </p>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="bg-gray-800 py-12">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-semibold text-center">Обо мне</h2>
+      <div class="flex flex-col md:flex-row items-center mt-6">
+        <img src="https://via.placeholder.com/300x300?text=Profile" alt="Profile" class="w-64 h-64 rounded-full shadow-lg">
+        <div class="md:ml-8 mt-4 md:mt-0 text-center md:text-left">
+          <h3 class="text-2xl font-bold">Иван Иванов</h3>
+          <p class="mt-2">
+            Я — энтузиаст криптовалют с 5-летним опытом в трейдинге и инвестициях. Делюсь знаниями и помогаю новичкам освоиться в мире блокчейна.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-semibold text-center">Что я предлагаю</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+          <img src="https://via.placeholder.com/150x150?text=Consulting" alt="Consulting" class="mx-auto rounded-lg">
+          <h3 class="text-xl font-bold mt-4">Консультации</h3>
+          <p class="mt-2">Персональные советы по инвестициям в криптовалюты.</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+          <img src="https://via.placeholder.com/150x150?text=Trading" alt="Trading" class="mx-auto rounded-lg">
+          <h3 class="text-xl font-bold mt-4">Трейдинг</h3>
+          <p class="mt-2">Обучение стратегиям торговли на криптобиржах.</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+          <img src="https://via.placeholder.com/150x150?text=Security" alt="Security" class="mx-auto rounded-lg">
+          <h3 class="text-xl font-bold mt-4">Безопасность</h3>
+          <p class="mt-2">Настройка кошельков и защита ваших активов.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="bg-blue-900 py-12">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-semibold">Свяжитесь со мной</h2>
+      <p class="mt-4 max-w-xl mx-auto">
+        Готов ответить на ваши вопросы и помочь с криптовалютами!
+      </p>
+      <div class="mt-6">
+        <p>Email: <a href="mailto:example@email.com" class="underline">example@email.com</a></p>
+        <p>Telegram: <a href="https://t.me/yourusername" class="underline">@YourUsername</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-6 text-center">
+    <p>&copy; 2025 Крипто Визитка. Все права защищены.</p>
+  </footer>
+</body>
+</html>
